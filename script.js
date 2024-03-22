@@ -1,7 +1,9 @@
-// Get form, expense list, and total amount elements
 const expenseForm = document.getElementById("expense-form");
 const expenseList = document.getElementById("expense-list");
 const totalAmountElement = document.getElementById("total-amount");
+const cancelElement = document.getElementById("cancel-svg");
+const blurElement = document.getElementById("edit-overlay");
+const editFormElement = document.getElementById("edit-form");
 
 // Initialize expenses array from localStorage
 let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
@@ -16,7 +18,6 @@ function renderExpenses() {
 
   // Loop through expenses array and create table rows
   for (let i = 0; i < expenses.length; i++) {
-    console.log(i);
     const expense = expenses[i];
     const expenseRow = document.createElement("tr");
     expenseRow.innerHTML = ` 
@@ -38,6 +39,12 @@ function renderExpenses() {
   localStorage.setItem("expenses", JSON.stringify(expenses));
 }
 
+// When clicking cancel button
+function back() {
+  blurElement.style.visibility = "hidden";
+  editFormElement.style.visibility = "hidden";
+}
+
 // Function to add expense
 function addExpense(event) {
   event.preventDefault();
@@ -45,6 +52,7 @@ function addExpense(event) {
   // Get expense name and amount from form
   const expenseNameInput = document.getElementById("expense-name");
   const expenseAmountInput = document.getElementById("expense-amount");
+
   const expenseName = expenseNameInput.value;
   const expenseAmount = parseFloat(expenseAmountInput.value);
 
@@ -71,23 +79,68 @@ function addExpense(event) {
   renderExpenses();
 }
 
-// Function to delete expense
-function deleteExpense(event) {
-  if (event.target.classList.contains("delete-btn")) {
-    // Get expense index from data-id attribute
-    const expenseIndex = parseInt(event.target.getAttribute("data-id"));
+// Function to handle action like delete and edit
+function handleExpenseActions(event) {
+  const target = event.target;
 
-    // Remove expense from expenses array
+  // Handle edit function
+  if (target.classList.contains("edit-btn")) {
+    const expenseIndex = parseInt(
+      target.getAttribute("data-id").replace("edit", "")
+    );
+    const expense = expenses[expenseIndex];
+
+    const editNameInput = document.getElementById("edit-name");
+    const editAmountInput = document.getElementById("edit-amount");
+    const nameElement = document.getElementById("name");
+
+    editNameInput.value = expense.name;
+    editAmountInput.value = expense.amount;
+
+    editFormElement.setAttribute("data-index", expenseIndex); // Store the index for later use
+    editFormElement.style.visibility = "visible";
+    blurElement.style.visibility = "visible";
+    nameElement.textContent = `Editing ${expense.name}`;
+  }
+  // Handle delete function
+  else if (target.classList.contains("delete-btn")) {
+    const expenseIndex = parseInt(
+      target.getAttribute("data-id").replace("delete", "")
+    );
     expenses.splice(expenseIndex, 1);
-
-    // Render expenses
     renderExpenses();
   }
 }
 
+// Function to edit expense
+function editExpense(event) {
+  event.preventDefault();
+  const expenseIndex = parseInt(editFormElement.getAttribute("data-index"));
+  const newName = document.getElementById("edit-name").value;
+  const newAmount = parseFloat(document.getElementById("edit-amount").value);
+
+  if (isNaN(newAmount) || newName.trim() === "") {
+    alert("Please enter valid expense details.");
+    return;
+  }
+
+  expenses[expenseIndex].name = newName;
+  expenses[expenseIndex].amount = newAmount;
+
+  // Clear form inputs
+  document.getElementById("edit-name").value = "";
+  document.getElementById("edit-amount").value = "";
+
+  back();
+
+  renderExpenses();
+}
+
 // Add event listeners
 expenseForm.addEventListener("submit", addExpense);
-expenseList.addEventListener("click", deleteExpense);
+expenseList.addEventListener("click", handleExpenseActions);
+cancelElement.addEventListener("click", back);
+editFormElement.addEventListener("submit", editExpense);
 
 // Render initial expenses on page load
 renderExpenses();

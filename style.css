@@ -23,6 +23,10 @@ form {
   margin-bottom: 20px;
 }
 
+#expense-form input {
+  margin: 0 10px;
+}
+
 input[type="text"],
 input[type="number"] {
   padding: 10px;
@@ -92,4 +96,53 @@ tbody td {
   padding: 10px;
   text-align: right;
   background-color: #f2f2f2;
+}
+
+.edit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(7, 7, 7, 0.85);
+  z-index: 1;
+  visibility: hidden;
+}
+
+#edit-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 400px;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border: 1px solid black;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  visibility: hidden;
+}
+
+#edit-form h2 {
+  text-align: center;
+}
+
+#edit-form input {
+  width: 350px;
+  margin: 10px 0;
+}
+
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.close-icon:hover {
+  stroke: red;
 }
